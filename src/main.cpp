@@ -21,9 +21,9 @@ int main(){
     ODESolver::SimpleODESolver solver;
 
     // time span
-    const double t0 = 0;    // initial time
-    const double tf = 5;  // final time
-    const double dt = 0.01;  // delta time
+    const double t0 = 0;        // initial time
+    const double tf = 5;        // final time
+    const double dt = 0.01;     // delta time
     const int n = (int)((tf - t0) / dt);    // number of time steps
     Eigen::VectorXd times = Eigen::VectorXd::LinSpaced(n+1, t0, t0 + n * dt);
 
@@ -45,7 +45,6 @@ int main(){
     file.open("output.csv");
     file << "t,q1,q2,dq1,dq2" << std::endl;
 
-    // std::cout << result.rows() << "  " << result.cols() << std::endl;
     // print the results
     for(int i=0; i<result.rows(); ++i){
 	    // Write the current state to the file
