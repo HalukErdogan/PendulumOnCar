@@ -20,5 +20,5 @@ cd ..
 # Animate
 To animate the result of the simulation,
 ```
-python3 animate.py
+python3 script/animate.py
 ```
