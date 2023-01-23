@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib.animation import FuncAnimation
 
 # Read the output.csv file into a pandas dataframe
-df = pd.read_csv("./build/output.csv")
+df = pd.read_csv("output.csv")
 
 # Extract the time and state data
 time = df["t"]
