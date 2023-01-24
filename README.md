@@ -4,21 +4,13 @@ This is a c++ package that simulates and animates the dynamics of a pendulum on 
 # Build
 To build the package with cmake,
 ```
-mkdir build
-cd build
-cmake ..
-make
+chmod +x build.sh
+./build.sh
 ```
 
 # Run
-To simulate the dynamics of the system,
+To simulate and animate the dynamics of the system,
 ```
-cd ..
-./build/simulate
-```
-
-# Animate
-To animate the result of the simulation,
-```
-python3 script/animate.py
+chmod +x run.sh
+./run.sh
 ```
