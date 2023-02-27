@@ -65,15 +65,20 @@ namespace DynamicModel
         std::vector<Eigen::MatrixXd> fxx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(n, n));
-            Eigen::MatrixXd deltas = eps * Eigen::MatrixXd::Identity(n, n);
-
-            // central numerical differentiation
-            for(int i = 0; i<n; ++i){
-                result.at(i).col(i) = (fx(state + deltas.col(i), control, time) - fx(state - deltas.col(i), control, time)) / 2 / eps;
-            }
             return std::move(result);
         }
 
+        std::vector<Eigen::MatrixXd> fux(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
+        {
+            std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, n));
+            return std::move(result);
+        }
+
+        std::vector<Eigen::MatrixXd> fuu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
+        {
+            std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, m));
+            return std::move(result);
+        }
     };
 
 } // namespace DynamicModel
