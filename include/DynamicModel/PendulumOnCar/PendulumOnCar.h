@@ -41,11 +41,11 @@ namespace DynamicModel
         Eigen::MatrixXd fx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {   
             Eigen::MatrixXd result = Eigen::MatrixXd::Zero(n, n);
-            Eigen::MatrixXd deltas = eps * Eigen::MatrixXd::Identity(n, n);
+            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
 
             // central numerical differentiation
             for(int i=0; i<n; ++i){
-                result.col(i) = (f(state + deltas.col(i), control, time) - f(state - deltas.col(i), control, time)) / 2 / eps;
+                result.col(i) = (f(state + delta_states.col(i), control, time) - f(state - delta_states.col(i), control, time)) / 2 / eps;
             }
             return std::move(result);
         }
@@ -53,11 +53,11 @@ namespace DynamicModel
         Eigen::MatrixXd fu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             Eigen::MatrixXd result = Eigen::MatrixXd::Zero(n, m);
-            Eigen::MatrixXd deltas = eps * Eigen::MatrixXd::Identity(m, m);
+            Eigen::MatrixXd delta_controls = eps * Eigen::MatrixXd::Identity(m, m);
 
             // central numerical differentiation
             for(int i=0; i<m; ++i){
-                result.col(i) = (f(state + deltas.col(i), control, time) - f(state - deltas.col(i), control, time)) / 2 / eps;
+                result.col(i) = (f(state, control + delta_controls.col(i), time) - f(state, control + delta_controls.col(i), time)) / 2 / eps;
             }
             return std::move(result);
         }
@@ -65,18 +65,51 @@ namespace DynamicModel
         std::vector<Eigen::MatrixXd> fxx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(n, n));
+            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
+
+            // central numerical differentiation
+            for(int i=0; i<n; ++i){
+                auto temp = (fx(state + delta_states.col(i), control, time) - fx(state - delta_states.col(i), control, time)) / 2 / eps;
+
+                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]
+                for(int j=0; j<n; ++j){
+                    result.at(j).col(i) = temp.row(j);
+                }
+            }
             return std::move(result);
         }
 
         std::vector<Eigen::MatrixXd> fux(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, n));
+            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
+
+            // central numerical differentiation
+            for(int i=0; i<n; ++i){
+                auto temp = (fu(state + delta_states.col(i), control, time) - fu(state - delta_states.col(i), control, time)) / 2 / eps;
+                
+                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]
+                for(int j=0; j<n; ++j){
+                    result.at(j).col(i) = temp.row(j);
+                }
+            }
             return std::move(result);
         }
 
         std::vector<Eigen::MatrixXd> fuu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, m));
+            Eigen::MatrixXd delta_controls = eps * Eigen::MatrixXd::Identity(m, m);
+
+            // central numerical differentiation
+            for(int i=0; i<m; ++i){
+                auto temp = (fu(state, control + delta_controls.col(i), time) - fu(state, control - delta_controls.col(i), time)) / 2 / eps;
+                
+                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]  
+                for(int j=0; j<n; ++j){
+                    result.at(j).col(i) = temp.row(j);
+                }
+            }
             return std::move(result);
         }
     };
