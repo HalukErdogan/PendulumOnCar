@@ -1,6 +1,8 @@
 #ifndef DYNAMIC_MODEL_BASE_H
 #define DYNAMIC_MODEL_BASE_H
 
+#include <vector>
+
 #include <eigen3/Eigen/Dense>
 
 namespace DynamicModel
@@ -11,8 +13,11 @@ namespace DynamicModel
         virtual ~DynamicModelBase() {}
 
         virtual Eigen::VectorXd f(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
-        virtual Eigen::MatrixXd df_dx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
-        virtual Eigen::MatrixXd df_du(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
+        virtual Eigen::MatrixXd fx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
+        virtual Eigen::MatrixXd fu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
+        virtual std::vector<Eigen::MatrixXd> fxx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
+        virtual std::vector<Eigen::MatrixXd> fxu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
+        virtual std::vector<Eigen::MatrixXd> fuu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const = 0;
     };
 } // namespace DynamicModel
 
