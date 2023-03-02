@@ -30,87 +30,114 @@ namespace DynamicModel
 
             const double &u = control(0); // force
 
-            Eigen::VectorXd result = Eigen::VectorXd::Zero(4, 1);
-            result(0) = dq1;
-            result(1) = dq2;
-            result(2) = (l * m2 * std::sin(q2) * std::pow(dq2, 2) + u + m2 * g * std::cos(q2) * std::sin(q2)) / (m1 + m2 * (1 - std::pow(std::cos(q2), 2)));
-            result(3) = -(l * m2 * std::cos(q2) * std::sin(q2) * std::pow(dq2, 2) + u * std::cos(q2) + (m1 + m2) * g * std::sin(q2)) / (l * m1 + l * m2 * (1 - std::pow(std::cos(q2), 2)));
-            return std::move(result);
+            Eigen::VectorXd result(4);
+            result << 
+                dq1,
+                dq2,
+                (l * m2 * std::sin(q2) * std::pow(dq2, 2) + u + m2 * g * std::cos(q2) * std::sin(q2)) / (m1 + m2 * (1 - std::pow(std::cos(q2), 2))),
+                -(l * m2 * std::cos(q2) * std::sin(q2) * std::pow(dq2, 2) + u * std::cos(q2) + (m1 + m2) * g * std::sin(q2)) / (l * m1 + l * m2 * (1 - std::pow(std::cos(q2), 2)));
+            return result;
         }
 
         Eigen::MatrixXd fx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {   
-            Eigen::MatrixXd result = Eigen::MatrixXd::Zero(n, n);
-            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
+            Eigen::MatrixXd result(n, n);
+            Eigen::VectorXd state_0(n), state_1(n);
 
             // central numerical differentiation
             for(int i=0; i<n; ++i){
-                result.col(i) = (f(state + delta_states.col(i), control, time) - f(state - delta_states.col(i), control, time)) / 2 / eps;
+                state_0 = state;
+                state_1 = state;
+                state_0(i) -= eps;
+                state_1(i) += eps;
+                result.col(i) = (f(state_1, control, time) - f(state_0, control, time)) / 2 / eps;
             }
-            return std::move(result);
+            return result;
         }
 
         Eigen::MatrixXd fu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
-            Eigen::MatrixXd result = Eigen::MatrixXd::Zero(n, m);
-            Eigen::MatrixXd delta_controls = eps * Eigen::MatrixXd::Identity(m, m);
+            Eigen::MatrixXd result(n, m);
+            Eigen::VectorXd control_0(m), control_1(m);
 
-            // central numerical differentiation
+            // first order central numerical differentiation
             for(int i=0; i<m; ++i){
-                result.col(i) = (f(state, control + delta_controls.col(i), time) - f(state, control + delta_controls.col(i), time)) / 2 / eps;
+                control_0 = control;
+                control_1 = control;
+                control_0(i) -= eps;
+                control_1(i) += eps;
+                result.col(i) = (f(state, control_1, time) - f(state, control_0, time)) / 2 / eps;
             }
-            return std::move(result);
+            return result;
         }
 
         std::vector<Eigen::MatrixXd> fxx(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(n, n));
-            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
+            Eigen::VectorXd state_0(n), state_1(n);
 
             // central numerical differentiation
             for(int i=0; i<n; ++i){
-                auto temp = (fx(state + delta_states.col(i), control, time) - fx(state - delta_states.col(i), control, time)) / 2 / eps;
+                state_0 = state;
+                state_1 = state;
+                state_0(i) -= eps;
+                state_1(i) += eps;
 
-                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]
+                // dfx/dxi = [dfx1/dxi, dfx2/dxi, ... , dfxn/dxi]
+                auto temp = (fx(state_1, control, time) - fx(state_0, control, time)) / 2 / eps;
+
+                // dfx/dxi -> d2fi/dx2
                 for(int j=0; j<n; ++j){
                     result.at(j).col(i) = temp.row(j);
                 }
             }
-            return std::move(result);
+            return result;
         }
 
         std::vector<Eigen::MatrixXd> fux(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, n));
-            Eigen::MatrixXd delta_states = eps * Eigen::MatrixXd::Identity(n, n);
+            Eigen::VectorXd state_0(n), state_1(n);
 
             // central numerical differentiation
             for(int i=0; i<n; ++i){
-                auto temp = (fu(state + delta_states.col(i), control, time) - fu(state - delta_states.col(i), control, time)) / 2 / eps;
+                state_0 = state;
+                state_1 = state;
+                state_0(i) -= eps;
+                state_1(i) += eps;
                 
-                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]
+                // dfu/dxi = [dfu1/dxi, dfu2/dxi, ... , dfum/dxi]
+                auto temp = (fu(state_1, control, time) - fu(state_0, control, time)) / 2 / eps;
+                
+                // dfu/dxi -> d2fi/dudx
                 for(int j=0; j<n; ++j){
                     result.at(j).col(i) = temp.row(j);
                 }
             }
-            return std::move(result);
+            return result;
         }
 
         std::vector<Eigen::MatrixXd> fuu(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {
             std::vector<Eigen::MatrixXd> result(n, Eigen::MatrixXd::Zero(m, m));
-            Eigen::MatrixXd delta_controls = eps * Eigen::MatrixXd::Identity(m, m);
+            Eigen::VectorXd control_0(m), control_1(m);
 
             // central numerical differentiation
             for(int i=0; i<m; ++i){
-                auto temp = (fu(state, control + delta_controls.col(i), time) - fu(state, control - delta_controls.col(i), time)) / 2 / eps;
+                control_0 = control;
+                control_1 = control;
+                control_0(i) -= eps;
+                control_1(i) += eps;
+
+                // dfu/dui = [dfu1/dui, dfu2/dui, ... , dfum/dui]
+                auto temp = (fu(state, control_1, time) - fu(state, control_0, time)) / 2 / eps;
                 
-                // rearrange the derivatives    [idx1, idx2, idx3] ->  [idx2, idx3, idx1]  
+                // dfu/dxi -> d2fi/du2
                 for(int j=0; j<n; ++j){
                     result.at(j).col(i) = temp.row(j);
                 }
             }
-            return std::move(result);
+            return result;
         }
     };
 
