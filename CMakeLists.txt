@@ -19,3 +19,7 @@ add_executable(simulation ${SOURCES})
 
 # link the library 
 target_link_libraries(simulation -lm)
+
+# Add tests
+enable_testing()
+add_subdirectory(tests)
