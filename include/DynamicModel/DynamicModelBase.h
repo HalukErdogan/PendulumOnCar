@@ -34,7 +34,7 @@ namespace DynamicModel
             state_1 = state;
             state_0(i) -= eps;
             state_1(i) += eps;
-            result.col(i) = (f(state_1, control, time) - f(state_0, control, time)) / 2 / eps;
+            result.col(i) = (f(state_1, control, time) - f(state_0, control, time)) / 2.0 / eps;
         }
         return result;
     }
@@ -52,7 +52,7 @@ namespace DynamicModel
             control_1 = control;
             control_0(i) -= eps;
             control_1(i) += eps;
-            result.col(i) = (f(state, control_1, time) - f(state, control_0, time)) / 2 / eps;
+            result.col(i) = (f(state, control_1, time) - f(state, control_0, time)) / 2.0 / eps;
         }
         return result;
     }
@@ -71,7 +71,7 @@ namespace DynamicModel
             state_1(i) += eps;
 
             // dfx/dxi = [dfx1/dxi, dfx2/dxi, ... , dfxn/dxi]
-            auto temp = (fx(state_1, control, time) - fx(state_0, control, time)) / 2 / eps;
+            Eigen::MatrixXd temp = (fx(state_1, control, time) - fx(state_0, control, time)) / 2.0 / eps;
 
             // dfx/dxi -> d2fi/dx2
             for(int j=0; j<n; ++j){
@@ -96,7 +96,7 @@ namespace DynamicModel
             state_1(i) += eps;
             
             // dfu/dxi = [dfu1/dxi, dfu2/dxi, ... , dfum/dxi]
-            auto temp = (fu(state_1, control, time) - fu(state_0, control, time)) / 2 / eps;
+            Eigen::MatrixXd temp = (fu(state_1, control, time) - fu(state_0, control, time)) / 2.0 / eps;
             
             // dfu/dxi -> d2fi/dudx
             for(int j=0; j<n; ++j){
@@ -121,7 +121,7 @@ namespace DynamicModel
             control_1(i) += eps;
 
             // dfu/dui = [dfu1/dui, dfu2/dui, ... , dfum/dui]
-            auto temp = (fu(state, control_1, time) - fu(state, control_0, time)) / 2 / eps;
+            Eigen::MatrixXd temp = (fu(state, control_1, time) - fu(state, control_0, time)) / 2.0 / eps;
             
             // dfu/dxi -> d2fi/du2
             for(int j=0; j<n; ++j){
