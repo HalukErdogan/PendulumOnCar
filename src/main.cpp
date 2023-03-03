@@ -12,7 +12,7 @@
 
 int main(){
     // system model
-    DynamicModel::PendulumOnACar model;
+    DynamicModel::PendulumOnCar model;
     
     // integration method
     IntegrationMethod::RungeKuttaIntegration method;
