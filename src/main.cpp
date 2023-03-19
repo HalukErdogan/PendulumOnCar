@@ -16,7 +16,7 @@ int main(){
     DynamicModel::PendulumOnCar model;
     
     // integration method
-    IntegrationMethod::RungeKuttaIntegration integrator;
+    IntegrationMethod::RKDPIntegration integrator;
 
     // ode solver
     ODESolver::SimpleODESolver ode;
@@ -48,10 +48,11 @@ int main(){
     problem.Qf = Eigen::MatrixXd::Zero(4,4);
     
     problem.x0 << 0.0, 0.0, 0.0, 0.0;
-    problem.xt << 0.0, M_PI, 0.0, 0.0;
+    problem.xt << 1.0, M_PI, 0.0, 0.0;
     problem.R << 0.01;
     // problem.Q.diagonal() << 1, 1, 1, 1;
     problem.Qf.diagonal() << 1, 1, 1, 1;
+    problem.Qf *= 100;
     problem.T = times;
     problem.X0 = std::vector<Eigen::VectorXd>(n, problem.x0);
     problem.U0 = std::vector<Eigen::VectorXd>(n, u0);

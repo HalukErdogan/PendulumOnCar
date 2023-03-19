@@ -14,7 +14,7 @@ namespace TrajectoryOptimizer
         {
             // config params
             int n_iter = 200;
-            double alpha = 0.01;
+            double alpha = 0.1;
             
             // number of node
             int n_sample = problem.T.size();
@@ -135,7 +135,7 @@ namespace TrajectoryOptimizer
                     const double delta_time = next_time - time;
 
                     // update the delta control
-                    node.du = alpha * (node.k + node.K*(x_hat - node.x));
+                    node.du = alpha * node.k + node.K*(x_hat - node.x);
 
                     // calculate the new control
                     u_hat = node.u + node.du;
