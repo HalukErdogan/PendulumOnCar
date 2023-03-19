@@ -16,7 +16,7 @@ namespace DynamicModel
         double g;   // gravitational constant
         
     public:
-        PendulumOnCar(double mass_cart = 1.0, double mass_pendulum = 1.0, double length = 1.0, double g = 9.81) : m1(mass_cart), m2(mass_pendulum), l(length), g(g) {}
+        PendulumOnCar(double mass_cart = 1.0, double mass_pendulum = 0.5, double length = 1.0, double g = 9.81) : m1(mass_cart), m2(mass_pendulum), l(length), g(g) {}
 
         Eigen::VectorXd f(const Eigen::VectorXd &state, const Eigen::VectorXd &control, const double &time) const override
         {

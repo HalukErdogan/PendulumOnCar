@@ -16,7 +16,7 @@ namespace ODESolver
     public:
         virtual ~ODESolverBase() {}
         
-        virtual Eigen::MatrixXd solve(const DynamicModelBase &model, const IntegrationMethodBase &method, const Eigen::VectorXd &state, const Eigen::MatrixXd &controls, const Eigen::VectorXd &dts) const = 0;
+        virtual std::vector<Eigen::VectorXd> solve(const DynamicModelBase &model, const IntegrationMethodBase &method, const Eigen::VectorXd &state, const std::vector<Eigen::VectorXd> &controls, const std::vector<double> &times) const = 0;
     };
 
 } // namespace ODESolver
